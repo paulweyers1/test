@@ -68,7 +68,7 @@ void setup() {
 }
 
 void loop() {
-// do nothing
+// do nothing - this is only a test harness all work done in setup()
 }
 
 /* */
@@ -89,10 +89,14 @@ void makeIFTTTRequest(const char* resource, String jsonObject) {
     if (Debug0)
       Serial.println("Failed to connect...");
   }
+  
   if (Debug1)
     Serial.println("json: " + String(jsonObject));
+  
   if (Debug1)
     Serial.println("resource: " + String(resource));
+  
+  // write the jason header to send to IFTTT
   client.println(String("POST ") + resource + " HTTP/1.1");
   client.println(String("Host: ") + server); 
   client.println("Connection: close\r\nContent-Type: application/json");
@@ -101,17 +105,25 @@ void makeIFTTTRequest(const char* resource, String jsonObject) {
   client.println();
   client.println(jsonObject);
     
-  // check response for success
+  // check the response for success
   int timeout = 5 * 10; // 5 seconds             
-  while(!!!client.available() && (timeout-- > 0)){delay(100);}
-  if(!!!client.available()){
-    if (Debug0)Serial.println("No response...");
+  while(!!!client.available() && (timeout-- > 0)){
+    delay(100);
   }
+  // client is not availble so got no reponse
+  if(!!!client.available()){
+    if (Debug0)
+      Serial.println("No response...");
+  }
+  
+  // if there is a client write the package to it
   while(client.available()){
-    if (Debug1)Serial.write(client.read());
+    Serial.write(client.read());
   }
       
-  if (Debug1)Serial.println("\nclosing connection");
-  // stop wifi client before leaving
+  if (Debug1)
+    Serial.println("\nclosing connection");
+  
+  // closing the wifi connection before leaving
   client.stop(); 
 }
